@@ -17,7 +17,7 @@ const SCORE_VALUES = {
 const CANVAS_SCALE = 1;
 const BLOCK_SIZE = 30;
 const INITIAL_DROP_INTERVAL = 1000;
-const SPEED_INCREASE = 0.4;
+const SPEED_INCREASE = 0.9;
 const KEY_BINDINGS = {
     ArrowLeft: -1,
     ArrowRight: 1,
@@ -158,6 +158,7 @@ class Arena {
     sweep() {
         let rowCount = 1;
         let score = 0;
+        let rowsCleared = 0;
         outer: for (let y = this.matrix.length - 1; y > 0; --y) {
             for (let x = 0; x < this.matrix[y].length; ++x) {
                 if (this.matrix[y][x] === 0) {
@@ -169,8 +170,9 @@ class Arena {
             ++y;
             score += rowCount * SCORE_VALUES.SINGLE_ROW;
             rowCount *= SCORE_VALUES.MULTIPLIER;
+            rowsCleared++;
         }
-        return score;
+        return { score, rowsCleared };
     }
 
     collide(piece) {
@@ -226,6 +228,12 @@ class Tetris {
 
         this.isGameOver = true;
 
+        this.backgroundMusic = document.getElementById('background-music');
+        this.gameOverSound = document.getElementById('game-over-sound');
+        this.rotateSound = document.getElementById('rotate-sound');
+        this.rowSound = document.getElementById('row-sound');
+        this.stackSound = document.getElementById('stack-sound');
+
         this._update = this.update.bind(this);
         this.updateScore();
     }
@@ -256,14 +264,21 @@ class Tetris {
         if (this.arena.collide(this.player)) {
             this.player.pos.y--;
             this.arena.merge(this.player);
-            this.score += this.arena.sweep();
+            this.stackSound.play();
+            const { score, rowsCleared } = this.arena.sweep();
+            if (rowsCleared > 0) {
+                this.rowSound.play();
+            }
+            this.score += score;
             this.updateScore();
             this.player.spawn();
-            this.increaseSpeed();  // Збільшуємо швидкість падіння фігур
+            this.increaseSpeed();
             if (this.arena.collide(this.player)) {
                 this.highScore = Math.max(this.score, this.highScore);
                 this.isGameOver = true;
                 this.gameOverDisplay.style.display = 'block';
+                this.backgroundMusic.pause();
+                this.gameOverSound.play();
                 this.updateScore();
                 return;
             }
@@ -280,6 +295,7 @@ class Tetris {
 
     playerRotate() {
         this.player.rotatePiece(this.arena);
+        this.rotateSound.play();
     }
 
     updateScore() {
@@ -288,7 +304,9 @@ class Tetris {
     }
 
     increaseSpeed() {
+        if (this.dropInterval > 300){
         this.dropInterval *= SPEED_INCREASE;
+        }
     }
 
     start() {
@@ -310,6 +328,7 @@ class Tetris {
             this.updateScore();
             this.lastTime = 0;
             this.dropCounter = 0;
+            this.backgroundMusic.play();
             this.update();
         }
     }
