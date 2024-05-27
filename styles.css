@@ -8,6 +8,7 @@ body {
     color: #fff;
     font-family: 'Arial', sans-serif;
     text-align: center;
+    position: relative;
 }
 
 .container {
@@ -78,7 +79,19 @@ canvas {
     background: #21a1f1;
 }
 
+.volume-control {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    display: flex;
+    align-items: center;
+}
 
+.volume-control label {
+    font-size: 1em;
+    margin-right: 10px;
+}
 
-
-
+.volume-control input {
+    cursor: pointer;
+}
