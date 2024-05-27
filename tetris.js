@@ -223,7 +223,6 @@ class Tetris {
         this.highScore = 0;
 
         this.dropCounter = 0;
-        this.dropInterval = INITIAL_DROP_INTERVAL;
         this.lastTime = 0;
 
         this.isGameOver = true;
@@ -317,7 +316,7 @@ class Tetris {
         this.score = 0;
         this.gameOverDisplay.style.display = 'none';
         this.isGameOver = false;
-        this.dropInterval = INITIAL_DROP_INTERVAL;  // Скидаємо швидкість на початкову
+        this.dropInterval = INITIAL_DROP_INTERVAL;
         this.player.spawn();
         if (this.arena.collide(this.player)) {
             this.highScore = Math.max(this.score, this.highScore);
@@ -333,6 +332,14 @@ class Tetris {
         }
     }
 }
+document.getElementById('volume').addEventListener('input', function(event) {
+    const volume = event.target.value;
+    document.getElementById('background-music').volume = volume;
+});
+
+document.getElementById('volume').addEventListener('keydown', function(event) {
+    event.stopPropagation();
+});
 
 document.addEventListener('DOMContentLoaded', () => {
     const canvas = document.getElementById('tetris');
